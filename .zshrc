@@ -24,7 +24,11 @@ kterm*|xterm)
 
 	#カレントディレクトリが変わったらls
 	if [ ${PWD} != ${pre:-""} ]; then
+	    if [ ${PWD} = ${HOME} ]; then
 		ls -Fv --color=auto --group-directories-first
+            else
+		ls -FAv --color=auto --group-directories-first
+	    fi
 	fi
         pre=${PWD}
     }
