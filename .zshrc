@@ -129,6 +129,8 @@ abbreviations=(
   "DL"    "~/Downloads"
   "DE"    "~/Desktop"
   "DW"    "~/work"
+  ':a'    '(:a)'
+  ':A'    '(:A)'
 )
 
 magic-abbrev-expand() {
