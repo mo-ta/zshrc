@@ -140,10 +140,11 @@ abbreviations=(
   "Iv"    "| ${VISUAL:-${EDITOR}}"
   "Iw"    "| wc"
   "Ix"    "| xargs"
-  "DO"    "~/Documents"
-  "DL"    "~/Downloads"
-  "DE"    "~/Desktop"
-  "DW"    "~/work"
+  "Do"    "~/Documents"
+  "Dl"    "~/Downloads"
+  "De"    "~/Desktop"
+  "Dw"    "~/work"
+  "Dg"    "~/work/GIT"
   ':a'    '(:a)'
   ':A'    '(:A)'
 )
