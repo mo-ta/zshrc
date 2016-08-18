@@ -91,8 +91,19 @@ alias cp="cp -iv"
 alias ln="ln -iv"
 alias rmd="rm -rfv"
 
-#http://d.hatena.ne.jp/rubikitch/20071104/1194183191
+zshaddhistory() {
+    local line=${1%%$'\n'}
+    local cmd=${line%% *}
 
+    # 以下の条件をすべて満たすものだけをヒストリに追加する
+    [[ ${#line} -ge 5
+        && ${cmd} != (l|l[sal])
+        && ${cmd} != (cd)
+        && ${cmd} != (man)
+    ]]
+}
+
+#http://d.hatena.ne.jp/rubikitch/20071104/1194183191
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
 zstyle ':chpwd:*' recent-dirs-max 500 # cdrの履歴を保存する個数
