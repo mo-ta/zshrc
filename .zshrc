@@ -33,6 +33,7 @@ kterm*|xterm)
         pre=${PWD}
     }
     ;;
+
 esac
 #kan3
 HISTFILE=~/.zsh_history
@@ -173,13 +174,14 @@ setopt globdots
 vistate=""
 function zle-line-init zle-keymap-select {
   case $KEYMAP in
-    vicmd) vistate="|${bg[blue]}R${bg[default]}" ;;
     viins) vistate="|I"   ;;
+    vicmd) vistate="|${bg[blue]}R${bg[default]}" ;;
     main)  vistate="  "   ;;
   esac
   PROMPT="[%.$vistate]%# "
   zle reset-prompt
 }
+
 zle -N zle-line-init
 zle -N zle-keymap-select
 bindkey -M viins 'jj' vi-cmd-mode
@@ -191,7 +193,8 @@ SPROMPT="%r is correct? [n,y,a,e]: "
 #zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 #
 #setopt NO_NOMATCH 
-setopt hist_ignore_all_dups
+setopt hist_ignore_all_dups # ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
+setopt hist_reduce_blanks # 余分な空白は詰めて記録
 alias wide="resize -s ${LINES} `expr \( ${COLUMNS} \* 11 \) \/ 10` > /dev/null"
 #プロファイル:wq
 #if type zprof > /dev/null 2>&1; then
