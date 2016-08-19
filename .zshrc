@@ -92,6 +92,7 @@ alias cp="cp -iv"
 alias ln="ln -iv"
 alias rmd="rm -rfv"
 
+#余分なヒストリは追加しない
 zshaddhistory() {
     local line=${1%%$'\n'}
     local cmd=${line%% *}
@@ -146,13 +147,13 @@ abbreviations=(
   "De"    "~/Desktop"
   "Dw"    "~/work"
   "Dg"    "~/work/GIT"
-  ':a'    '(:a)'
-  ':A'    '(:A)'
+  ":a"     '(:a)'
+  ':A'     '(:A)'
 )
 
 magic-abbrev-expand() {
     local MATCH
-    LBUFFER=${LBUFFER%%(#m)[-_a-zA-Z0-9]#}
+    LBUFFER=${LBUFFER%%(#m)[:-_a-zA-Z0-9]#}
     LBUFFER+=${abbreviations[$MATCH]:-$MATCH}
     zle self-insert
 }
@@ -181,10 +182,10 @@ function zle-line-init zle-keymap-select {
   PROMPT="[%.$vistate]%# "
   zle reset-prompt
 }
-
 zle -N zle-line-init
 zle -N zle-keymap-select
 bindkey -M viins 'jj' vi-cmd-mode
+
 #kan2
 PROMPT2="%_%% "
 SPROMPT="%r is correct? [n,y,a,e]: "
