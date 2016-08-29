@@ -7,6 +7,39 @@ typeset -U path cdpath fpath manpath
 autoload -U compinit
 compinit
 
+#keyバインドの変更(xscape 必要)
+#CapsLock -> Ctrl
+#hennkan  -> Esc
+#colon    -> 押している間Ctrl
+#space    -> 押している間Shift
+#code space(65) capslock(66) henkan(100) colon(48)
+pid_xscape=`pidof xcape`
+if [ -z ${pid_xscape} ]; then #プロセスみて多重起動防止
+        #----mod-key の無効化-----
+        xmodmap -e 'remove Lock    = Caps_Lock'
+        xmodmap -e 'remove Control = Control_L'
+        xmodmap -e 'remove Shift   = Shift_L'  
+        
+        #----key変更--------
+        xmodmap -e 'keycode 66  = Control_L' #capslock =>ctrl(L)
+        xmodmap -e 'keycode 100 = Escape'    #henkan   =>esc
+
+        #----keycodeの保存----------
+        xmodmap -e 'keycode 255 = space'  #space    
+        xmodmap -e 'keycode 254 = colon'  #colon
+
+        #----key-on時の動作---------
+        xmodmap -e 'keycode 65 = Shift_L'     #space    =>one-key mod shift(L)
+        xmodmap -e 'keycode 48 = Control_L'   #colon=>one-key mod ctrl(L)
+
+        #----key-off時の動作-----
+	xcape -e   '#65=space;#48=colon'
+
+        #----mod-keyの最有効化-----
+        xmodmap -e 'add Control = Control_L'
+        xmodmap -e 'add Shift   = Shift_L'
+fi
+
 # 色の読み込み
 autoload -Uz colors
 colors
@@ -188,7 +221,7 @@ function zle-line-init zle-keymap-select {
 }
 zle -N zle-line-init
 zle -N zle-keymap-select
-bindkey -M viins 'jj' vi-cmd-mode
+#bindkey -M viins 'jj' vi-cmd-mode
 
 #kan2
 PROMPT2="%_%% "
