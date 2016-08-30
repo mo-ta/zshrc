@@ -1,12 +1,25 @@
+#=======================  zshrc  =================================
+autoload -U compinit
+compinit
+
+# 色の読み込み
+autoload -Uz colors
+colors
+
+#ファイル補完候補に色を付ける
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+############  path  ###################{{{
 export LD_LIBRARY_PATH=/usr/lib:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 export PYTHONPATH=~/Works/RL/python-codec/src:~/.local/lib/python2.7/site-packages:$PYTHONPATH
 export PATH=~/bin:$PATH
 export CDPATH=$HOME:$HOME/work:$HOME/work/GIT
+export XDG_CONFIG_HOME=$HOME/.config
 typeset -U path cdpath fpath manpath
-#kan1
-autoload -U compinit
-compinit
+#}}}
 
+############  keyバインドの変更  ##############{{{
+bindkey -v
 #keyバインドの変更(xscape 必要)
 #CapsLock -> Ctrl
 #hennkan  -> Esc
@@ -39,11 +52,9 @@ if [ -z ${pid_xscape} ]; then #プロセスみて多重起動防止
         xmodmap -e 'add Control = Control_L'
         xmodmap -e 'add Shift   = Shift_L'
 fi
+#}}}
 
-# 色の読み込み
-autoload -Uz colors
-colors
-
+############  precmd hook ##############{{{
 case "${TERM}" in
 kterm*|xterm)
     precmd() {
@@ -70,15 +81,16 @@ kterm*|xterm)
     ;;
 
 esac
-#kan3
+#}}}
+
+############  history  #############{{{
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt hist_ignore_dups
 setopt share_history
-
-#kan4
-bindkey -v
+setopt hist_ignore_all_dups # ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
+setopt hist_reduce_blanks # 余分な空白は詰めて記録
 
 autoload history-search-end
 zle -N history-beginning-search-backward-end history-search-end
@@ -86,19 +98,24 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^P" history-beginning-search-backward-end
 bindkey "^N" history-beginning-search-forward-end
  
+#余分なヒストリは追加しない
+zshaddhistory() {
+    local line=${1%%$'\n'}
+    local cmd=${line%% *}
 
+    # 以下の条件をすべて満たすものだけをヒストリに追加する
+    [[ ${#line} -ge 5
+        && ${cmd} != (l|l[sal])
+        && ${cmd} != (cd)
+        && ${cmd} != (man)
+        && ${cmd} != (rm[d])
+        && ${cmd} != (reboot)
+        && ${cmd} != (shutdown)
+    ]]
+}
+#}}}
 
-
-
-#kan5
-setopt auto_cd
-setopt auto_pushd
-setopt pushd_ignore_dups
-setopt correct
-setopt list_packed
-setopt nolistbeep
-
-#kan10
+############  alias  #############{{{
 setopt complete_aliases #aliasでも補完できるようにする
 alias -s rb='ruby'
 alias -s py='python'
@@ -127,42 +144,10 @@ alias cp="cp -iv"
 alias ln="ln -iv"
 alias rmd="rm -rfv"
 
-#余分なヒストリは追加しない
-zshaddhistory() {
-    local line=${1%%$'\n'}
-    local cmd=${line%% *}
+#}}}
 
-    # 以下の条件をすべて満たすものだけをヒストリに追加する
-    [[ ${#line} -ge 5
-        && ${cmd} != (l|l[sal])
-        && ${cmd} != (cd)
-        && ${cmd} != (man)
-        && ${cmd} != (rm[d])
-        && ${cmd} != (reboot)
-        && ${cmd} != (shutdown)
-    ]]
-}
-
-#http://d.hatena.ne.jp/rubikitch/20071104/1194183191
-autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
-add-zsh-hook chpwd chpwd_recent_dirs
-zstyle ':chpwd:*' recent-dirs-max 500 # cdrの履歴を保存する個数
-zstyle ':chpwd:*' recent-dirs-default yes
-zstyle ':completion:*' recent-dirs-insert both
-source ~/.zaw/zaw.zsh
-zstyle ':filter-select:highlight' selected fg=black,bg=white,standout
-zstyle ':filter-select' case-insensitive yes
-
-bindkey '^@' zaw-cdr
-bindkey '^R' zaw-history
-bindkey '^X^F' zaw-git-files
-bindkey '^X^B' zaw-git-branches
-bindkey '^X^P' zaw-process
-bindkey '^A' zaw-tmux
-
-
+############  extended glob  #############{{{
 setopt extended_glob
-
 typeset -A abbreviations
 abbreviations=(
   "Im"    "| more"
@@ -202,13 +187,28 @@ zle -N magic-abbrev-expand
 zle -N no-magic-abbrev-expand
 bindkey " " magic-abbrev-expand
 bindkey "^x " no-magic-abbrev-expand
+#}}}
 
-setopt complete_aliases
-setopt noautoremoveslash #パス補完時にスラッシュをつける
-#ドットファイルにマッチさせるために先頭に'.'を付ける必要がなくなる。
-setopt globdots
+############  zaw  #############{{{
+#http://d.hatena.ne.jp/rubikitch/20071104/1194183191
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs
+zstyle ':chpwd:*' recent-dirs-max 500 # cdrの履歴を保存する個数
+zstyle ':chpwd:*' recent-dirs-default yes
+zstyle ':completion:*' recent-dirs-insert both
+source ~/.zaw/zaw.zsh
+zstyle ':filter-select:highlight' selected fg=black,bg=white,standout
+zstyle ':filter-select' case-insensitive yes
 
-#zshプロンプトにモード表示####################################
+bindkey '^@' zaw-cdr
+bindkey '^R' zaw-history
+bindkey '^X^F' zaw-git-files
+bindkey '^X^B' zaw-git-branches
+bindkey '^X^P' zaw-process
+bindkey '^A' zaw-tmux
+#}}}
+
+############  prompt  ###############{{{
 vistate=""
 function zle-line-init zle-keymap-select {
   case $KEYMAP in
@@ -223,18 +223,21 @@ zle -N zle-line-init
 zle -N zle-keymap-select
 #bindkey -M viins 'jj' vi-cmd-mode
 
-#kan2
 PROMPT2="%_%% "
 SPROMPT="%r is correct? [n,y,a,e]: "
-#export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
-#ファイル補完候補に色を付ける
-#zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-#
-#setopt NO_NOMATCH 
-setopt hist_ignore_all_dups # ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
-setopt hist_reduce_blanks # 余分な空白は詰めて記録
-alias wide="resize -s ${LINES} `expr \( ${COLUMNS} \* 11 \) \/ 10` > /dev/null"
-#プロファイル:wq
-#if type zprof > /dev/null 2>&1; then
-#  zprof | less
-#fi
+
+#}}}
+
+############  other option  #############{{{
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt correct
+setopt list_packed
+setopt nolistbeep
+setopt complete_aliases
+setopt noautoremoveslash #パス補完時にスラッシュをつける
+#ドットファイルにマッチさせるために先頭に'.'を付ける必要がなくなる。
+setopt globdots
+#}}}
+
