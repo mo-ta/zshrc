@@ -39,7 +39,7 @@ if [ -z ${pid_xscape} ]; then #プロセスみて多重起動防止
 
         #----keycodeの保存----------
         xmodmap -e 'keycode 255 = space'  #space    
-        xmodmap -e 'keycode 254 = colon asterisk colon asterisk'  #colon
+        xmodmap -e 'keycode 254 = colon asterisk'  #colon
 
         #----key-on時の動作---------
         xmodmap -e 'keycode 65 = Shift_L'     #space    =>one-key mod shift(L)
