@@ -18,42 +18,6 @@ export XDG_CONFIG_HOME=$HOME/.config
 typeset -U path cdpath fpath manpath
 #}}}
 
-############  keyバインドの変更  ##############{{{
-bindkey -v
-#keyバインドの変更(xscape 必要)
-#CapsLock -> Ctrl
-#hennkan  -> Esc
-#colon    -> 押している間Ctrl
-#space    -> 押している間Shift
-#code space(65) capslock(66) henkan(100) colon(48)
-pid_xscape=`pidof xcape`
-if [ -z ${pid_xscape} ]; then #プロセスみて多重起動防止
-        #----mod-key の無効化-----
-        xmodmap -e 'remove Lock    = Caps_Lock'
-        xmodmap -e 'remove Control = Control_L'
-        xmodmap -e 'remove Shift   = Shift_L'  
-        
-        #----key変更--------
-        xmodmap -e 'keycode 66  = Control_L' #capslock =>ctrl(L)
-        xmodmap -e 'keycode 100 = Escape'    #henkan   =>esc
-
-        #----keycodeの保存----------
-        xmodmap -e 'keycode 255 = space'  #space    
-        xmodmap -e 'keycode 254 = colon asterisk'  #colon
-
-        #----key-on時の動作---------
-        xmodmap -e 'keycode 65 = Shift_L'     #space    =>one-key mod shift(L)
-        xmodmap -e 'keycode 48 = Control_L'   #colon=>one-key mod ctrl(L)
-
-        #----key-off時の動作-----
-	xcape -e   '#65=space;#48=colon'
-
-        #----mod-keyの最有効化-----
-        xmodmap -e 'add Control = Control_L'
-        xmodmap -e 'add Shift   = Shift_L'
-fi
-#}}}
-
 ############  precmd hook ##############{{{
 case "${TERM}" in
 kterm*|xterm)
@@ -241,3 +205,48 @@ setopt noautoremoveslash #パス補完時にスラッシュをつける
 setopt globdots
 #}}}
 
+#############  keyバインドの変更  ##############{{{
+bindkey -v
+##keyバインドの変更(xscape 必要)
+##CapsLock -> Ctrl
+##Hennkan  -> Esc
+##colon    -> 押している間Ctrl
+##         -> 何も押さずに離すとcolon
+##Space    -> 押している間Shift
+##         -> 何も押さずに離すとspace
+##hiragana -> Enter
+##alt_r    -> XF86DOS (キーボード・ショートカット用)
+##code space(65) capslock(66) henkan(100) colon(48)
+##     Hiragana(101) Alt-R(108)
+pid_xscape=`pidof xcape`
+if [ -z ${pid_xscape} ]; then #プロセスみて多重起動防止
+#---------------------.Xmodmapに移した(xcape以外)----------
+        #----mod-key の無効化-----
+#        xmodmap -e 'remove Lock    = Caps_Lock'
+#        xmodmap -e 'remove Control = Control_L'
+#        xmodmap -e 'remove Shift   = Shift_L'  
+#        xmodmap -e 'remove mod1    = Alt_R' 
+#        
+#        #----key変更--------
+#        xmodmap -e 'keycode 66  = Control_L' #capslock =>ctrl(L)
+#        xmodmap -e 'keycode 100 = Escape'    #henkan   =>esc
+#	 xmodmap -e 'keycode 101 = Return'
+#	 xmodmap -e 'keycode 108 = XF86DOS'
+#
+#        #----keycodeの保存----------
+#        xmodmap -e 'keycode 255 = space'  #space    
+#        xmodmap -e 'keycode 254 = colon asterisk'  #colon
+#
+#        #----key-on時の動作---------
+#        xmodmap -e 'keycode 65 = Shift_L'     #space    =>one-key mod shift(L)
+#        xmodmap -e 'keycode 48 = Control_L'   #colon=>one-key mod ctrl(L)
+#
+#
+#        #----mod-keyの最有効化-----
+#        xmodmap -e 'add Control = Control_L'
+#        xmodmap -e 'add Shift   = Shift_L'
+
+#        #----key-off時の動作-----
+	xcape -e   '#65=space;#48=colon'
+fi
+#}}}
